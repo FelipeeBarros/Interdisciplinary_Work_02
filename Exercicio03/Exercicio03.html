@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8">
+    <title>Cadastro de Produtos - Moderno</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #e8f0fe;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 95%;
+            margin: auto;
+        }
+
+        h1 {
+            color: #222;
+            margin-bottom: 6px;
+        }
+
+        p {
+            margin-bottom: 20px;
+            color: #555;
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+            padding: 24px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 14px;
+            /* mais alto */
+            font-size: 1.1rem;
+            /* texto maior */
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+
+        textarea {
+            min-height: 100px;
+        }
+
+        label {
+            font-weight: 500;
+            margin-bottom: 6px;
+            display: block;
+            font-size: 1rem;
+        }
+
+        .form-buttons {
+            grid-column: 1 / -1;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 20px;
+            /* mais espaço */
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.85;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #222;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+
+        #mensagens {
+            margin-top: 14px;
+            font-size: 0.95rem;
+            min-height: 20px;
+            color: #28a745;
+        }
+
+        table {
+            width: 100%;
+            min-width: 900px;
+            border-collapse: collapse;
+            margin-top: 24px;
+            background: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            table-layout: fixed;
+        }
+
+        thead {
+            background: #007bff;
+            color: white;
+            font-size: 1rem;
+        }
+
+        th,
+        td {
+            padding: 14px 18px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            word-wrap: break-word;
+            font-size: 1rem;
+        }
+
+        tbody tr:hover {
+            background: #f1f3f6;
+        }
+
+        .action-btn {
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            margin-right: 4px;
+            font-size: 0.95rem;
+        }
+
+        .action-load {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .action-delete {
+            background: #dc3545;
+            color: white;
+        }
+
+        #id,
+        #preco,
+        #quantidade,
+        #nome,
+        #descricao{
+            max-width: 830px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Cadastro de Produtos</h1>
+        <p>Formulário completo com CRUD local e suporte a backend.</p>
+
+        <form id="produtoForm">
+            <div>
+                <label for="id">ID (deixe vazio para novo)</label>
+                <input type="text" id="id" placeholder="ex: 1001">
+            </div>
+            <div>
+                <label for="nome">Nome</label>
+                <input type="text" id="nome" required>
+            </div>
+            <div>
+                <label for="preco">Preço</label>
+                <input type="number" id="preco" step="0.01" min="0" required>
+            </div>
+            <div>
+                <label for="quantidade">Quantidade</label>
+                <input type="number" id="quantidade" min="0" required>
+            </div>
+            <div>
+                <label for="categoria">Categoria</label>
+                <select id="categoria">
+                    <option value="">— selecione —</option>
+                    <option>Eletrônicos</option>
+                    <option>Roupas</option>
+                    <option>Alimentos</option>
+                    <option>Casa</option>
+                </select>
+            </div>
+            <div>
+                <label for="disponivel">Disponível</label>
+                <select id="disponivel">
+                    <option value="true">Sim</option>
+                    <option value="false">Não</option>
+                </select>
+            </div>
+            <div style="grid-column: 1 / -1;">
+                <label for="descricao">Descrição</label>
+                <textarea id="descricao"></textarea>
+            </div>
+
+            <div class="form-buttons">
+                <button type="submit" class="btn-primary">Salvar (POST)</button>
+                <button type="button" id="btnAtualizar" class="btn-warning">Atualizar (PUT)</button>
+                <button type="button" id="btnExcluir" class="btn-danger">Excluir (DELETE)</button>
+                <button type="button" id="btnLimpar" class="btn-secondary">Limpar</button>
+                <button type="button" id="btnListar" class="btn-info">Listar Produtos (GET)</button>
+            </div>
+        </form>
+
+        <div id="mensagens"></div>
+
+        <table id="tabelaProdutos">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Preço</th>
+                    <th>Qtd</th>
+                    <th>Categoria</th>
+                    <th>Disponível</th>
+                    <th>Descrição</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+        (function () {
+            const LS_KEY = 'meus_produtos_local';
+            const form = document.getElementById('produtoForm');
+            const msgs = document.getElementById('mensagens');
+            const tbody = document.querySelector('#tabelaProdutos tbody');
+
+            function showMsg(txt, t = 3000) {
+                msgs.textContent = txt;
+                if (t > 0) setTimeout(() => { if (msgs.textContent === txt) msgs.textContent = ''; }, t);
+            }
+
+            function formToProduto() {
+                const id = document.getElementById('id').value.trim();
+                return {
+                    id: id === '' ? null : id,
+                    nome: document.getElementById('nome').value.trim(),
+                    preco: parseFloat(document.getElementById('preco').value),
+                    quantidade: parseInt(document.getElementById('quantidade').value),
+                    categoria: document.getElementById('categoria').value,
+                    disponivel: document.getElementById('disponivel').value === 'true',
+                    descricao: document.getElementById('descricao').value.trim()
+                };
+            }
+
+            function produtoToForm(p) {
+                document.getElementById('id').value = p.id ?? '';
+                document.getElementById('nome').value = p.nome ?? '';
+                document.getElementById('preco').value = p.preco ?? '';
+                document.getElementById('quantidade').value = p.quantidade ?? '';
+                document.getElementById('categoria').value = p.categoria ?? '';
+                document.getElementById('disponivel').value = p.disponivel ? 'true' : 'false';
+                document.getElementById('descricao').value = p.descricao ?? '';
+            }
+
+            function limparForm() { form.reset(); document.getElementById('id').value = ''; }
+
+            function lsGetAll() { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); }
+            function lsSaveAll(arr) { localStorage.setItem(LS_KEY, JSON.stringify(arr)); }
+            function lsNew(p) {
+                if (!p.id) {
+                    const next = lsGetAll().length === 0 ? 1 : Math.max(...lsGetAll().map(x => Number(x.id))) + 1;
+                    p.id = String(next);
+                }
+                const all = lsGetAll();
+                all.push(p);
+                lsSaveAll(all);
+                return p;
+            }
+            function lsUpdate(p) {
+                let all = lsGetAll();
+                const idx = all.findIndex(x => x.id === p.id);
+                if (idx === -1) throw new Error('Produto não encontrado');
+                all[idx] = p;
+                lsSaveAll(all);
+                return p;
+            }
+            function lsDelete(id) {
+                let all = lsGetAll();
+                const idx = all.findIndex(x => x.id === id);
+                if (idx === -1) throw new Error('Produto não encontrado');
+                all.splice(idx, 1);
+                lsSaveAll(all);
+            }
+
+            function renderProdutos(list) {
+                tbody.innerHTML = '';
+                if (!list || list.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8">Nenhum produto encontrado.</td></tr>';
+                    return;
+                }
+                list.forEach(p => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td>${p.id}</td>
+                                    <td>${p.nome}</td>
+                                    <td>${p.preco.toFixed(2)}</td>
+                                    <td>${p.quantidade}</td>
+                                    <td>${p.categoria}</td>
+                                    <td>${p.disponivel ? 'Sim' : 'Não'}</td>
+                                    <td>${p.descricao}</td>`;
+                    const tdAcoes = document.createElement('td');
+                    const btnCarregar = document.createElement('button'); btnCarregar.textContent = 'Carregar';
+                    btnCarregar.className = 'action-btn action-load';
+                    btnCarregar.addEventListener('click', () => produtoToForm(p));
+                    const btnDel = document.createElement('button'); btnDel.textContent = 'X';
+                    btnDel.className = 'action-btn action-delete';
+                    btnDel.addEventListener('click', () => { if (confirm('Confirma exclusão do produto ID ' + p.id + '?')) { lsDelete(p.id); listarProdutos(); } });
+                    tdAcoes.appendChild(btnCarregar); tdAcoes.appendChild(btnDel);
+                    tr.appendChild(tdAcoes);
+                    tbody.appendChild(tr);
+                });
+            }
+
+            function listarProdutos() { renderProdutos(lsGetAll()); showMsg('Produtos carregados'); }
+
+            form.addEventListener('submit', e => {
+                e.preventDefault();
+                const p = formToProduto();
+                try {
+                    if (!p.id) { lsNew(p); showMsg('Produto cadastrado'); limparForm(); listarProdutos(); }
+                    else { if (confirm('ID preenchido — criar como novo produto?')) { lsNew(p); showMsg('Produto cadastrado'); limparForm(); listarProdutos(); } }
+                } catch (err) { showMsg('Erro: ' + err.message); }
+            });
+
+            document.getElementById('btnAtualizar').addEventListener('click', () => {
+                const p = formToProduto();
+                if (!p.id) { showMsg('Informe o ID para atualizar'); return; }
+                try { lsUpdate(p); showMsg('Produto atualizado'); limparForm(); listarProdutos(); } catch (err) { showMsg('Erro: ' + err.message); }
+            });
+
+            document.getElementById('btnExcluir').addEventListener('click', () => {
+                const id = document.getElementById('id').value.trim();
+                if (!id) { showMsg('Informe o ID para excluir'); return; }
+                if (!confirm('Confirma exclusão do produto ID ' + id + '?')) return;
+                try { lsDelete(id); showMsg('Produto excluído'); limparForm(); listarProdutos(); } catch (err) { showMsg('Erro: ' + err.message); }
+            });
+
+            document.getElementById('btnLimpar').addEventListener('click', () => { limparForm(); showMsg('Formulário limpo'); });
+            document.getElementById('btnListar').addEventListener('click', listarProdutos);
+
+            listarProdutos();
+
+            if (!localStorage.getItem(LS_KEY)) {
+                const seed = [
+                    { id: '1', nome: 'Porta', preco: 4000.00, quantidade: 5, categoria: 'Casa', disponivel: true, descricao: 'Porta madeira' },
+                    { id: '2', nome: 'Alface', preco: 5.00, quantidade: 50, categoria: 'Alimentos', disponivel: true, descricao: 'Organico' }
+                ];
+                localStorage.setItem(LS_KEY, JSON.stringify(seed));
+            }
+        })();
+    </script>
+</body>
+
+</html>
